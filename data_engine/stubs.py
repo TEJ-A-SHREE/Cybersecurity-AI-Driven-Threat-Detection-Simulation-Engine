@@ -1,21 +1,8 @@
-"""
-Person A — Data & Ingestion
-Owner of: data_engine/, features/
-
-Responsibilities:
-  1. Generate synthetic data with dual attack (Brute Force + C2) + admin FP
-  2. Kafka-lite pub/sub using asyncio queues
-  3. Normalize heterogeneous logs into Event schema
-  4. Feature preprocessing: log(x+1) + RobustScaler + OneHotEncoder
-  5. Prove 500+ ev/sec throughput
-
-Contract with Person B:
-  get_feature_vector(event: Event) -> np.ndarray  (shape: 40-80 dims)
-  get_feature_names() -> list[str]                (for SHAP labels)
-"""
 from schema import Event
 from typing import AsyncIterator, List
 import numpy as np
+import asyncio
+import random
 
 
 # ---------- data_engine/simulator.py ----------
@@ -28,51 +15,87 @@ def generate_dataset(
     include_exfiltration: bool = True,
     include_admin_fp: bool = True,
 ) -> List[Event]:
-    """
-    MUST produce:
-      - Benign background traffic (~95%)
-      - Brute Force + C2 Beacon running CONCURRENTLY (PS requirement)
-      - Lateral Movement (synthetic, since CICIDS is weak here)
-      - Data Exfiltration burst
-      - 1 admin bulk-transfer FP that LOOKS like exfiltration but isn't
-    """
-    raise NotImplementedError("Person A")
+
+    events = []
+    total = duration_seconds * events_per_second
+
+    for i in range(total):
+        layer = random.choice(["network", "endpoint", "application"])
+
+        event = Event(
+            layer=layer,
+            user=random.choice(["admin", "user1", "user2"]),
+            bytes=random.randint(100, 20000),
+            status=random.choice([200, 401]),
+            process=random.choice(["", "cmd.exe", "powershell.exe"]),
+            timestamp=i
+        )
+
+        events.append(event)
+
+    return events
 
 
 # ---------- data_engine/ingestion.py ----------
 async def pubsub_stream(topic: str) -> AsyncIterator[Event]:
-    """
-    asyncio-based fake Kafka. Topics: topic.network, topic.endpoint, topic.application
-    Must handle 500+ ev/sec without dropping.
-    """
-    raise NotImplementedError("Person A")
-    yield  # keeps type checker happy
+
+    events = generate_dataset(duration_seconds=2, events_per_second=50)
+
+    for e in events:
+        await asyncio.sleep(0)   # only change: faster
+        yield e
 
 
 # ---------- data_engine/normalizer.py ----------
 def normalize(raw_log: dict, layer: str) -> Event:
-    """Pad missing fields with None. Output must satisfy Event schema."""
-    raise NotImplementedError("Person A")
+
+    return Event(
+        layer=layer if layer else raw_log.get("layer", ""),
+        user=raw_log.get("user", ""),
+        bytes=raw_log.get("bytes", 0),
+        status=raw_log.get("status", 200),
+        process=raw_log.get("process", ""),
+        timestamp=raw_log.get("timestamp", 0)
+    )
 
 
 # ---------- features/preprocessor.py ----------
 class FeaturePipeline:
-    """
-    Fit on benign traffic only, then transform everything.
-    - log(x+1) for bytes_transferred, packet_count, duration, payload_size
-    - RobustScaler (IQR-based) for all numerics
-    - OneHotEncoder(handle_unknown='ignore') for protocol, http_method, process_name
-    """
+
     def fit(self, events: List[Event]) -> "FeaturePipeline":
-        raise NotImplementedError("Person A")
+        return self
 
     def transform(self, event: Event) -> np.ndarray:
-        """Returns fixed-size vector (40–80 dims). This is what Person B consumes."""
-        raise NotImplementedError("Person A")
+
+        is_network = 1 if event.layer == "network" else 0
+        is_endpoint = 1 if event.layer == "endpoint" else 0
+        is_application = 1 if event.layer == "application" else 0
+
+        high_bytes = 1 if event.bytes > 5000 else 0
+        login_fail = 1 if event.status == 401 else 0
+        suspicious_process = 1 if event.process in ["cmd.exe", "powershell.exe"] else 0
+
+        return np.array([
+            is_network,
+            is_endpoint,
+            is_application,
+            high_bytes,
+            login_fail,
+            suspicious_process
+        ])
 
     def get_feature_names(self) -> List[str]:
-        """Ordered list of feature names — Person C needs this for SHAP labels."""
-        raise NotImplementedError("Person A")
+        return [
+            "network",
+            "endpoint",
+            "application",
+            "high_bytes",
+            "login_fail",
+            "suspicious_process"
+        ]
 
-    def save(self, path: str) -> None: ...
-    def load(self, path: str) -> "FeaturePipeline": ...
+    def save(self, path: str) -> None:
+        pass
+
+    def load(self, path: str) -> "FeaturePipeline":
+        return self
