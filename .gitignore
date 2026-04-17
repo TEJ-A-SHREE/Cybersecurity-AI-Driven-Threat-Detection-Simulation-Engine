@@ -1,0 +1,16 @@
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# Data & Large Files (Don't push these!)
+*.csv
+*.joblib
+*.pth
+*.h5
+
+# OS Files
+.DS_Store
+.env
+
+data/cic.csv
