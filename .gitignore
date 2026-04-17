@@ -1,26 +1,17 @@
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
+# Python environment
 venv/
+__pycache__/
+*.pyc
+
+# Data & Large Files (Don't push these!)
+*.csv
+*.joblib
+*.pth
+*.h5
+
+# OS Files
+.DS_Store
 .env
 
-# Data — huge, don't commit
-data/
-*.csv
-*.pcap
-*.jsonl
-
-# Trained models — use git-lfs if committing
-models/weights/*.joblib
-models/weights/*.json
-models/weights/*.keras
-models/weights/*.h5
-
-# Streamlit / dashboard state
-.streamlit/secrets.toml
-
-# IDE
-.vscode/
-.idea/
-.DS_Store
+data/cic.csv
+data/*.csv
