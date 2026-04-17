@@ -10,7 +10,7 @@ Team: Tejashree, Vishwa, Vaibhav, Yash
 | Person | Subsystem | Owns |
 |--------|-----------|------|
 | **A** | Data & Ingestion | `data_engine/`, `features/` |
-| **B** | ML Models (Keras) | `models/` |
+| **B** | ML Models (PyTorch) | `models/` |
 | **C** | Correlation + Dashboard | `engine/`, `dashboard/` |
 | **D** | Simulation + Integration | `simulation/`, `run.py`, `demo_script.md` |
 
@@ -24,7 +24,7 @@ The contract everyone shares: `schema.py` — **do not modify without team conse
 - **D**: commits this skeleton, sets up GitHub repo with branch protection
 - **Everyone**: clone, create `feature/<name>` branch, `pip install -r requirements.txt`
 - **A**: start synthetic data generator
-- **B**: open Colab, start LSTM architecture
+- **B**: open Drae, start LSTM architecture
 - **C**: write `mitre_mapping.json` + `playbook_templates.yaml`
 
 ### Hours 2–8: Core pieces in parallel
@@ -39,7 +39,7 @@ you're on track. Fix contracts here, not at hour 24.
 
 ### Hours 8–20: Fill in the real logic
 - **A**: feature pipeline fitted, saved, loadable
-- **B**: LSTM trained on Colab, weights committed; XGBoost trained; SHAP hooked up
+- **B**: LSTM trained on Drae, weights committed; XGBoost trained; SHAP hooked up
 - **C**: correlation with PID ancestry; FP suppression; dashboard with real data
 - **D**: scenario files built; replayer working
 
