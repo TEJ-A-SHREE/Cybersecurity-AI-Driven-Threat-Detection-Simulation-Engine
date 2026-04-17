@@ -1,0 +1,25 @@
+# Core
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+scipy==1.13.0
+
+# ML — Person B
+tensorflow==2.16.1          # brings Keras 3
+xgboost==2.0.3
+shap==0.45.0
+
+# Dashboard — Person C
+streamlit==1.34.0
+plotly==5.22.0
+pyyaml==6.0.1
+
+# Async ingestion — Person A
+aiofiles==23.2.1
+
+# Data gen — Person A (optional, for realistic network logs)
+scapy==2.5.0
+
+# Dev / testing
+pytest==8.1.1
+black==24.4.0
