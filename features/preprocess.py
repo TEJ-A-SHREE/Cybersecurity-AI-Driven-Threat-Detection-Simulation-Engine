@@ -53,7 +53,11 @@ def main():
     # Math - RobustScaler: Fit and transform
     print("Applying RobustScaler...")
     scaler = RobustScaler()
-    features[numeric_cols] = scaler.fit_transform(features[numeric_cols])
+    features_scaled = scaler.fit_transform(features[numeric_cols])
+    
+    # Replace numeric columns with scaled versions and DROP non-numeric features
+    # This ensures columns like 'Timestamp' are removed
+    features = pd.DataFrame(features_scaled, columns=numeric_cols, index=features.index)
 
     # Recombine features with the label column
     if labels is not None:
